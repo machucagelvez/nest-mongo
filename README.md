@@ -5,6 +5,7 @@
 # Ejecutar en desarrollo
 
 1. Clonar repositorio
+
 2. Ejecutar
 
 ```
@@ -21,6 +22,12 @@ yarn install
 
 ```
 docker-compose up -d
+```
+
+5. Reconstruir la BD
+
+```
+localhost:3000/api/v1/seed
 ```
 
 ## Stack

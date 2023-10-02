@@ -9,6 +9,10 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true, //Transforma los query params de string a el tipo de dato que se espera
+      },
     }),
   );
   await app.listen(3000);
