@@ -26,15 +26,7 @@ export class PokemonService {
       const pokemon = await this.pokemonModel.create(createPokemonDto);
       return pokemon;
     } catch (error) {
-      // El error.code 11000 es el que se genera cuando se intenta guardar dos veces un valor que debe ser único
-      if (error.code === 11000) {
-        throw new BadRequestException(
-          `Pokemon already exists in DB ${JSON.stringify(error.keyValue)}`,
-        );
-      } else {
-        console.log(error);
-        throw new InternalServerErrorException('Cannot create pokemon');
-      }
+      this.handleExceptions(error);
     }
   }
 
@@ -64,11 +56,40 @@ export class PokemonService {
     return pokemon;
   }
 
-  update(id: number, updatePokemonDto: UpdatePokemonDto) {
-    return updatePokemonDto;
+  async update(term: string, updatePokemonDto: UpdatePokemonDto) {
+    const pokemon = await this.findOne(term);
+    if (updatePokemonDto.name)
+      updatePokemonDto.name = updatePokemonDto.name.toLocaleLowerCase();
+    try {
+      await pokemon.updateOne(updatePokemonDto, {
+        new: true,
+      });
+      // Se devuelve lo que está en pokemon sobreescribiendo lo que se actualizó, que está en updatePokemonDto:
+      return { ...pokemon.toJSON(), ...updatePokemonDto };
+    } catch (error) {
+      this.handleExceptions(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pokemon`;
+  async remove(id: string) {
+    // const pokemon = await this.findOne(id);
+    // await pokemon.deleteOne();
+    // const result = await this.pokemonModel.findByIdAndDelete(id);
+
+    // Al eliminar de esta forma se evita hacer dos consultas a la BD:
+    const { deletedCount } = await this.pokemonModel.deleteOne({ _id: id });
+    if (deletedCount === 0) throw new BadRequestException('Pokemon not found');
+    return;
+  }
+
+  private handleExceptions(error: any) {
+    // El error.code 11000 es el que se genera cuando se intenta guardar dos veces un valor que debe ser único
+    if (error.code === 11000) {
+      throw new BadRequestException(
+        `Pokemon already exists in DB ${JSON.stringify(error.keyValue)}`,
+      );
+    }
+    console.log(error);
+    throw new InternalServerErrorException('Cannot create/update pokemon');
   }
 }
