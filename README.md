@@ -24,7 +24,17 @@ yarn install
 docker-compose up -d
 ```
 
-5. Reconstruir la BD
+5. Clonar el archivo `.env.template` y renombrar como `.env`
+
+6. Llenar la variables de entorno definidas en el `.env`
+
+7. Ejecutar la aplicación en dev:
+
+```
+npm run start:dev
+```
+
+8. Reconstruir la BD
 
 ```
 localhost:3000/api/v1/seed
